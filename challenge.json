@@ -1,0 +1,10 @@
+{
+  "challenge_id": "express-challenge",
+  "runtime_config": {
+    "runtime_type": "node-express",
+    "install_command": "npm install",
+    "start_command": "node --watch server.js",
+    "test_command": "npm test",
+    "ports": [{ "container_port": 3000, "type": "preview" }]
+  }
+}

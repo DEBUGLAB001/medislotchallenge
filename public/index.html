@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f6f7f4">
+  <title>MediSlot | Clinic bookings</title>
+  <link rel="stylesheet" href="./style.css">
+  <script defer src="./app.js"></script>
+</head>
+<body>
+  <header class="topbar"><a class="brand" href="./"><span class="brand-mark">+</span><span>Medi<span>Slot</span><small>CARE, IN GOOD TIME</small></span></a><nav><a class="nav-active" href="./">Appointments</a><a href="#how-it-works">How it works</a></nav><div class="profile"><span class="online-dot"></span><span id="profile-name">Jordan Lee</span><button class="avatar" id="profile-avatar" aria-label="Current profile">JL</button></div></header>
+  <main>
+    <section class="welcome"><div><div class="eyebrow"><span></span> YOUR CARE, ORGANIZED</div><h1>Make time for<br><em>your health.</em></h1><p>Find a specialist, choose a time that works, and keep every visit in one calm place.</p></div><div class="welcome-art" aria-hidden="true"><div class="art-sun"></div><div class="art-card"><span>YOUR NEXT VISIT</span><strong>Good care<br>starts here.</strong><i>✳</i></div><div class="art-stem"></div></div></section>
+    <section class="booking-card" id="book"><div class="card-head"><div><span class="step-label">01 <i>—</i> FIND A TIME</span><h2>Book an appointment</h2><p>Choose your doctor and we'll show you their open times.</p></div><span class="secure-label">⌑ &nbsp; Secure booking</span></div>
+      <form id="booking-form"><label class="field"><span>Specialist</span><select id="doctor-select" required><option value="">Loading specialists…</option></select><span class="field-icon">⌄</span></label><label class="field date-field"><span>Date</span><input id="date-input" type="date" required><span class="field-icon">▦</span></label><label class="field"><span>Visit type</span><select id="reason-select"><option>General consultation</option><option>Follow-up</option><option>Annual check-up</option><option>Skin consultation</option><option>Heart health review</option></select><span class="field-icon">⌄</span></label><button class="search-button" type="button" id="search-button">Find a time <b>→</b></button></form>
+      <div class="slot-panel" id="slot-panel" aria-live="polite"><span class="slot-prompt">Pick a specialist and date to see available times.</span></div><div class="selected-row" id="selected-row" hidden><span id="selection-copy"></span><button class="confirm-button" id="confirm-button" type="button">Confirm appointment <b>→</b></button></div>
+    </section>
+    <section class="appointments-section"><div class="section-heading"><div><span class="step-label">YOUR SCHEDULE</span><h2>Upcoming appointments <span class="count-pill" id="appointment-count">—</span></h2></div><div class="list-controls"><label class="sr-only" for="status-filter">Filter appointments</label><select id="status-filter"><option value="confirmed">Confirmed</option><option value="cancelled">Cancelled</option><option value="">All appointments</option></select><button class="text-button" id="refresh-button">↻ &nbsp; Refresh</button></div></div><div class="appointment-list" id="appointment-list"><div class="loading-row">Loading your schedule…</div></div><div class="pagination"><span id="page-copy">Showing your visits</span><div><button id="prev-page" aria-label="Previous page">←</button><span id="page-number">1</span><button id="next-page" aria-label="Next page">→</button></div></div></section>
+    <section class="trust-strip" id="how-it-works"><div><span>✳</span><p><b>Care that fits your day</b><br>Browse real appointment times with local specialists.</p></div><div><span>⌑</span><p><b>Your details stay yours</b><br>Only you and your care team can see your visits.</p></div><div><span>↻</span><p><b>Plans can change</b><br>Cancel or reschedule from your appointment list.</p></div></section>
+    <footer><a class="brand footer-brand" href="./"><span class="brand-mark">+</span><span>Medi<span>Slot</span></span></a><span>Thoughtful care, made a little easier.</span><span>© 2026 MediSlot Clinic</span></footer>
+  </main>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <dialog id="account-dialog"><form method="dialog"><button class="dialog-close" aria-label="Close">×</button><span class="step-label">SWITCH ACCOUNT</span><h2>Who’s booking today?</h2><p>Use a seeded clinic account to explore the experience.</p><div class="account-options"><button type="button" data-account="patient-jordan"><span class="account-initials">JL</span><span><b>Jordan Lee</b><small>Patient · jordan@example.test</small></span><span>→</span></button><button type="button" data-account="patient-sam"><span class="account-initials terracotta">SR</span><span><b>Sam Rivera</b><small>Patient · sam@example.test</small></span><span>→</span></button><button type="button" data-account="doctor-maya"><span class="account-initials lavender">MC</span><span><b>Dr. Maya Chen</b><small>Doctor · Family Medicine</small></span><span>→</span></button></div></form></dialog>
+</body>
+</html>

@@ -1,0 +1,18 @@
+{
+  "name": "medislot-clinic-booking-challenge",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A realistic Express clinic booking debugging challenge",
+  "main": "server.js",
+  "scripts": {
+    "start": "node --watch server.js",
+    "test": "jest --runInBand --reporters=./json-reporter.js"
+  },
+  "dependencies": {
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "jest": "^30.2.0",
+    "supertest": "^7.1.4"
+  }
+}

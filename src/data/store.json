@@ -1,0 +1,86 @@
+{
+  "doctors": [
+    {
+      "id": "doc-1",
+      "name": "Dr. Maya Chen",
+      "specialty": "Family Medicine",
+      "color": "#397b72"
+    },
+    {
+      "id": "doc-2",
+      "name": "Dr. Elias Morgan",
+      "specialty": "Cardiology",
+      "color": "#bc7957"
+    },
+    {
+      "id": "doc-3",
+      "name": "Dr. Priya Nair",
+      "specialty": "Dermatology",
+      "color": "#7769a8"
+    }
+  ],
+  "patients": [
+    {
+      "id": "pat-1",
+      "name": "Jordan Lee",
+      "email": "jordan@example.test"
+    },
+    {
+      "id": "pat-2",
+      "name": "Sam Rivera",
+      "email": "sam@example.test"
+    }
+  ],
+  "appointments": [
+    {
+      "id": "apt-1001",
+      "doctorId": "doc-1",
+      "patientId": "pat-2",
+      "date": "2026-10-13",
+      "startTime": "09:00",
+      "endTime": "09:30",
+      "status": "confirmed",
+      "reason": "Annual check-up"
+    },
+    {
+      "id": "apt-1002",
+      "doctorId": "doc-1",
+      "patientId": "pat-1",
+      "date": "2026-10-13",
+      "startTime": "10:00",
+      "endTime": "10:30",
+      "status": "confirmed",
+      "reason": "Follow-up"
+    },
+    {
+      "id": "apt-1005",
+      "doctorId": "doc-1",
+      "patientId": "pat-2",
+      "date": "2026-10-13",
+      "startTime": "11:15",
+      "endTime": "11:45",
+      "status": "confirmed",
+      "reason": "Extended consultation"
+    },
+    {
+      "id": "apt-1003",
+      "doctorId": "doc-2",
+      "patientId": "pat-2",
+      "date": "2026-10-14",
+      "startTime": "11:00",
+      "endTime": "11:30",
+      "status": "confirmed",
+      "reason": "Heart health review"
+    },
+    {
+      "id": "apt-1004",
+      "doctorId": "doc-3",
+      "patientId": "pat-1",
+      "date": "2026-10-15",
+      "startTime": "14:00",
+      "endTime": "14:30",
+      "status": "cancelled",
+      "reason": "Skin consultation"
+    }
+  ]
+}
