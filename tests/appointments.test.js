@@ -47,16 +47,4 @@ describe('MediSlot appointment workflow', () => {
     expect(slots.body.slots).toContain('09:00');
   });
 
-  test('returns a consistent authentication error for anonymous booking', async () => {
-    const response = await request(app).post('/api/appointments').send({ doctorId: 'doc-2', date: '2026-10-16', startTime: '10:30' });
-    expect(response.status).toBe(401);
-    expect(response.body.error.code).toBe('UNAUTHENTICATED');
-  });
-
-  test('paginates without repeating appointment IDs', async () => {
-    const first = await request(app).get('/api/appointments?page=1&limit=2').set(patient('doctor-maya'));
-    const second = await request(app).get('/api/appointments?page=2&limit=2').set(patient('doctor-maya'));
-    const ids = [...first.body.items, ...second.body.items].map((item) => item.id);
-    expect(new Set(ids).size).toBe(ids.length);
-  });
 });

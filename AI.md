@@ -33,49 +33,56 @@ medislot-challenge-node/
 
 ## Bugs and Bug Locations
 
-These are the five behavioral bug surfaces covered by the challenge. The named locations identify the owning implementation areas for debugging and review.
+These are the six failing behaviors covered by the challenge. The named locations identify the owning implementation areas for debugging and review.
 
-### 1. Appointment creation accepts invalid dates and times
+### 1. Past appointment dates are accepted
 
-- **Bug location:** `src/routes/appointments.js` and `src/controllers/appointmentController.js`, `POST /api/appointments`
-- **How to observe it:** Send a booking request with a malformed date/time, a past date, an unsupported duration, or a time outside the available schedule.
-- **Failure:** The route checks only that `doctorId`, `date`, and `startTime` exist, so malformed or otherwise invalid visits can reach availability and persistence.
-- **Expected:** Validate the request format, future date, supported duration, and selectable clinic time, returning `400 VALIDATION_ERROR` for invalid input.
+- **Bug location:** `src/controllers/appointmentController.js`, `POST /api/appointments`
+- **How to observe it:** As a patient, book `doc-2` for `2020-04-10` at `10:30`.
+- **Failure:** The API accepts a booking date in the past.
+- **Expected:** Return `400 VALIDATION_ERROR` for a past date.
 
-### 2. Partial interval overlaps are treated as available
+### 2. Partially overlapping appointment intervals are accepted
 
 - **Bug location:** `src/services/availabilityService.js`, `getAvailableSlots`
-- **How to observe it:** Request slots for `doc-1` on `2026-10-13`. The seeded 11:15-11:45 appointment overlaps the offered 11:00-11:30 slot.
-- **Failure:** Availability rejects only candidates fully contained inside a busy interval, so the partially overlapping 11:00 slot remains available.
-- **Expected:** Treat intervals as conflicting whenever `candidateStart < existingEnd` and `candidateEnd > existingStart`, while ignoring cancelled appointments and an appointment being rescheduled.
+- **How to observe it:** Book `doc-1` on `2026-10-13` at `11:00`; a seeded visit runs from `11:15` to `11:45`.
+- **Failure:** The API accepts the 30-minute booking despite the partial overlap.
+- **Expected:** Reject any candidate interval intersecting a confirmed appointment with `409 SLOT_UNAVAILABLE`.
 
-### 3. Booking and cancellation acknowledge writes before completion
+### 3. Booking response omits the persisted appointment record
 
-- **Bug location:** `src/controllers/appointmentController.js`, `create` and `cancel`
-- **How to observe it:** Book a new appointment or cancel `apt-1001`, then immediately read the schedule or request the affected doctor's slots.
-- **Failure:** The controller sends a success response while the repository's delayed JSON write is still pending, so the next request can observe stale state.
-- **Expected:** Await `repository.create` and `repository.update` before responding, and return the durable record. A cancelled appointment should release its time slot immediately after success.
+- **Bug location:** `src/controllers/appointmentController.js`, `create`
+- **How to observe it:** Book `doc-2` on `2026-10-16` at `10:30` as a patient.
+- **Failure:** The `201` response's `item` has no persisted appointment ID.
+- **Expected:** Await `repository.create` and return its persisted record, including the generated ID.
 
-### 4. Doctor-only authorization is inverted
+### 4. Patient accounts can reschedule doctor-only appointments
 
 - **Bug location:** `src/middleware/auth.js`, `requireRole`
 - **How to observe it:** Authenticate as `patient-jordan` and call `PATCH /api/appointments/apt-1002/reschedule`.
-- **Failure:** The role comparison calls `next()` for the wrong role and returns `403` for the required role, inverting the access decision.
-- **Expected:** Continue only when `req.user.role` matches the required role; reject patients with the standard `FORBIDDEN` error.
+- **Failure:** The patient request is allowed instead of being rejected.
+- **Expected:** Continue only when `req.user.role` matches the required role; otherwise return `403 FORBIDDEN`.
 
-### 5. Appointment status filtering excludes the requested state
+### 5. Appointment status filtering returns the wrong state
 
 - **Bug location:** `src/repositories/appointmentRepository.js`, `list`
-- **How to observe it:** Request `/api/appointments?status=cancelled` using an authenticated account.
-- **Failure:** The repository uses `item.status !== status`, which removes cancelled rows and leaks confirmed rows into the cancelled result.
-- **Expected:** Use equality filtering so the response contains only appointments with the requested status and accurate pagination totals.
+- **How to observe it:** Request `/api/appointments?status=cancelled` as a patient.
+- **Failure:** The response includes non-cancelled appointments or excludes cancelled ones.
+- **Expected:** Return only appointments whose status equals the requested status.
+
+### 6. Cancellation does not immediately release its slot
+
+- **Bug location:** `src/controllers/appointmentController.js`, `cancel`
+- **How to observe it:** As `patient-sam`, cancel `apt-1001`, then immediately request `doc-1`'s slots for `2026-10-13`.
+- **Failure:** The `09:00` slot is still unavailable after the successful cancellation response.
+- **Expected:** Await the cancellation write before responding so the slot is immediately available again.
 
 ## Expected Behaviour After Fixing All Bugs
 
-- Invalid and past appointment requests are rejected consistently.
-- Any overlapping confirmed appointment blocks the conflicting slot.
-- Booking and cancellation responses reflect completed JSON persistence.
-- Only authenticated doctors can reschedule appointments.
-- Confirmed and cancelled filters return the correct rows.
+- Past appointment dates are rejected consistently.
+- Partially overlapping confirmed appointments block the conflicting booking.
+- Booking responses include the persisted appointment record and ID.
+- Patients cannot reschedule through the doctor-only route.
+- Status filters return only rows matching the requested status.
 - Cancelling a visit immediately makes its time available again.
 - All automated tests in `npm test` pass with exit code `0`.

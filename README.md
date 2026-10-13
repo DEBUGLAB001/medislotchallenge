@@ -25,43 +25,54 @@ MediSlot is an interactive clinic appointment booking system for patients and ca
 ---
 
 ## 2. Debugging Challenge
-The clinic has reported invalid appointment requests, overlapping bookings, stale schedule data, and incorrect access control. Your goal is to investigate the request flow from the route through the controller, service, middleware, and repository, then implement the necessary fixes so that all automated tests pass.
+The clinic has reported six appointment workflow bugs. Your goal is to investigate the request flow from the route through the controller, service, middleware, and repository, then implement the necessary fixes so that all automated tests pass.
 
-### Reported Issues & Tasks:
-#### Issue 1: Invalid Appointment Requests Are Accepted
+### Reported Issues & Tasks
+#### Issue 1: Past Appointment Dates Are Accepted
 
-- **User Symptom**: A direct API request can submit malformed dates or times, dates in the past, unsupported durations, or visits outside the clinic's selectable schedule.
-- **Task**: Validate date and time formats, reject past appointment dates, and accept only supported appointment durations and booking times with the consistent `VALIDATION_ERROR` response shape.
+- **Reproduction**: Book `doc-2` for `2020-04-10` at `10:30` as a patient.
+- **Failure**: The API accepts the appointment instead of rejecting a date in the past.
+- **Expected**: Return `400 VALIDATION_ERROR` for a past appointment date.
 
-#### Issue 2: Overlapping Appointment Slots Appear Available
+#### Issue 2: Partially Overlapping Appointment Slots Are Available
 
-- **User Symptom**: On October 13, Dr. Maya Chen has a seeded 11:15-11:45 appointment, but the selectable 11:00-11:30 slot is incorrectly shown as available.
-- **Task**: Reject any candidate interval that intersects a confirmed appointment, including partial overlaps, instead of rejecting only intervals fully contained by an existing visit.
+- **Reproduction**: Book `doc-1` on `2026-10-13` at `11:00`; a seeded visit runs from `11:15` to `11:45`.
+- **Failure**: The API accepts the 30-minute booking even though it partially overlaps the seeded visit.
+- **Expected**: Return `409 SLOT_UNAVAILABLE` whenever booking intervals overlap.
 
-#### Issue 3: Booking and Cancellation Responses Race Persistence
+#### Issue 3: Booking Response Omits the Persisted Appointment Record
 
-- **User Symptom**: The API reports a successful booking or cancellation before the JSON store has been updated. An immediate schedule refresh can miss a new appointment or continue showing a cancelled slot as occupied.
-- **Task**: Await repository writes before sending success responses and return the persisted appointment record.
+- **Reproduction**: Book `doc-2` on `2026-10-16` at `10:30` as a patient.
+- **Failure**: The `201` response does not include the persisted appointment ID in `item`.
+- **Expected**: Await the repository write and return its persisted appointment record, including its ID.
 
 #### Issue 4: Patient Accounts Can Reach the Doctor-Only Reschedule Route
 
-- **User Symptom**: Switching to a patient account and calling the reschedule endpoint does not reliably produce the expected forbidden response.
-- **Task**: Allow the request to continue only when the authenticated user's role matches the required doctor role; otherwise return `403 FORBIDDEN`.
+- **Reproduction**: As `patient-jordan`, call `PATCH /api/appointments/apt-1002/reschedule`.
+- **Failure**: The patient request is allowed instead of being forbidden.
+- **Expected**: Return `403 FORBIDDEN` unless the authenticated user's role matches the required doctor role.
 
 #### Issue 5: Appointment Status Filters Return the Opposite Rows
 
-- **User Symptom**: Selecting the Cancelled filter can display confirmed appointments, while the requested cancelled records are excluded.
-- **Task**: Filter rows by equality with the requested status so each schedule view contains only the selected appointment state.
+- **Reproduction**: Request `/api/appointments?status=cancelled` as a patient.
+- **Failure**: The response includes non-cancelled appointments or excludes cancelled ones.
+- **Expected**: Return only appointments whose status equals the requested status.
+
+#### Issue 6: Cancelling an Appointment Does Not Immediately Release Its Slot
+
+- **Reproduction**: As `patient-sam`, cancel `apt-1001`, then request `doc-1`'s slots for `2026-10-13`.
+- **Failure**: The `09:00` slot is still missing immediately after the successful cancellation response.
+- **Expected**: Persist the cancellation before responding so the cancelled appointment no longer blocks its slot.
 
 ---
 
 ## 3. Expected Behavior After Fixing Bugs
 After resolving the issues:
 
-1. Invalid, past, unsupported, and out-of-hours appointment requests return a consistent `400 VALIDATION_ERROR` response.
-2. Every confirmed appointment blocks all selectable slots whose intervals intersect it, including partial overlaps.
-3. Booking and cancellation responses are sent only after the corresponding repository write has completed.
-4. Only authorized doctor accounts can reschedule appointments; patients receive `403 FORBIDDEN`.
-5. Status filters return only appointments matching the selected status, with correct pagination metadata.
-6. Cancelling an appointment immediately releases its time slot for a new booking.
-7. All automated tests in `tests/` pass with exit code `0`.
+1. Past appointment dates return `400 VALIDATION_ERROR`.
+2. Partially overlapping bookings return `409 SLOT_UNAVAILABLE`.
+3. Booking responses include the persisted appointment record and ID.
+4. Patients receive `403 FORBIDDEN` from the doctor-only reschedule route.
+5. Status filters return only appointments matching the requested status.
+6. A cancelled appointment's slot is available immediately after cancellation succeeds.
+7. All six challenge tests pass with exit code `0` after the bugs are fixed.
