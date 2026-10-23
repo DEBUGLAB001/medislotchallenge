@@ -5,6 +5,12 @@
     "install_command": "npm install",
     "start_command": "node --watch server.js",
     "test_command": "npm test",
-    "ports": [{ "container_port": 3000, "type": "preview" }]
-  }
+  },
+  "bug_topics": [
+    "Input Validation",
+    "Interval Overlap",
+    "Asynchronous Programming",
+    "Access Control",
+    "Array Filtering"
+  ]
 }
